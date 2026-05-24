@@ -268,7 +268,7 @@
 <div id="toast"></div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbxYZWBpsFdYRcLoLBnVl9_HhHltFZn7UavT0Rjq_2bgZfpG6WA4wOc15CNfNqsF72QW7A/exec';
+const API = 'https://script.google.com/macros/s/AKfycbyfbacSywOK1k_Rs1YxaEf_CbGxhEmaliqmxZol-9c60GAGOFYrB4jAs3eq-jKvN0YXrg/exec';
 let allCustomers = [];
 let cbCounter = 0;
 
@@ -445,32 +445,29 @@ async function saveCustomer() {
   const paytype = document.getElementById('f-paytype').value;
   if (!code || !name || !paytype) { toast('กรุณากรอก รหัสลูกค้า / ชื่อ / ประเภทชำระ', true); return; }
 
-  const payload = {
-    action: 'saveCustomer',
-    data: {
-      code, name,
-      addr:       document.getElementById('f-addr').value,
-      biztel:     document.getElementById('f-biztel').value,
-      contact:    document.getElementById('f-contact').value,
-      tel:        document.getElementById('f-tel').value,
-      billstart:  document.getElementById('f-billstart').value,
-      billdate:   document.getElementById('f-billdate').value,
-      billname:   document.getElementById('f-billname').value,
-      paytype,
-      creditdays: document.getElementById('f-creditdays').value,
-    }
+  const dataObj = {
+    code, name,
+    addr:       document.getElementById('f-addr').value,
+    biztel:     document.getElementById('f-biztel').value,
+    contact:    document.getElementById('f-contact').value,
+    tel:        document.getElementById('f-tel').value,
+    billstart:  document.getElementById('f-billstart').value,
+    billdate:   document.getElementById('f-billdate').value,
+    billname:   document.getElementById('f-billname').value,
+    paytype,
+    creditdays: document.getElementById('f-creditdays').value,
   };
 
   setOv('ov-form', true);
   try {
-    const res  = await fetch(API, { method: 'POST', body: JSON.stringify(payload) });
-    const data = await res.json();
-    if (data.status === 'ok') {
+    const encoded = encodeURIComponent(JSON.stringify(dataObj));
+    const result  = await jsonpGet(API + '?action=saveCustomer&data=' + encoded);
+    if (result.status === 'ok') {
       toast('บันทึกสำเร็จ: ' + name);
       clearForm();
       loadCustomers();
     } else {
-      toast('บันทึกไม่สำเร็จ: ' + (data.message || ''), true);
+      toast('บันทึกไม่สำเร็จ: ' + (result.message || ''), true);
     }
   } catch (e) {
     toast('เกิดข้อผิดพลาดในการบันทึก', true);
